@@ -17,7 +17,7 @@ function MessLine({ route }) {
 				createdAt: new Date(),
 				user: {
 					_id: 2,
-					name: 'React Native',
+					name: 'Hello',
 					avatar: 'https://placeimg.com/140/140/any',
 				},
 			},
