@@ -5,7 +5,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Header from '../../components/Header';
 import Message from '../../components/Message';
 
-
 const Data = [
 	{
 		id: 1,
@@ -53,19 +52,20 @@ export default function ChatScreen(props) {
 				/>
 			</View>
 
-            <FlatList style={styles.main}
-                data={Data}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Message
-                        user={item.userName}
-                        avatar={item.userImg}
-                        messageText={item.messageText}
-                        messageTime={item.messageTime}
-                        seen="yes"
-                    />
-                )}
-            />
+			<FlatList
+				style={styles.main}
+				data={Data}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
+					<Message
+						user={item.userName}
+						avatar={item.userImg}
+						messageText={item.messageText}
+						messageTime={item.messageTime}
+						seen='yes'
+					/>
+				)}
+			/>
 		</View>
 	);
 }

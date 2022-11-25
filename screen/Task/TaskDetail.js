@@ -3,8 +3,8 @@ import React from 'react';
 import { Text, View, StyleSheet, Pressable, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-function TaskDetail({route}) {
-	const {ID, checkin, checkout, MCP} = route.params
+function TaskDetail({ route }) {
+	const { ID, checkin, checkout, MCP } = route.params;
 	const navigation = useNavigation();
 	const ASPECT_RATIO = styles.map.width / styles.map.height;
 	const LATITUDE_DELTA = 0.02;

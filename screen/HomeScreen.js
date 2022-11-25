@@ -11,12 +11,12 @@ function HomeScreen() {
 	onAuthStateChanged(auth, (user) => {
 		if (user) {
 			const uid = user.uid;
-            const db = getFirestore();
-            getDoc(doc(db, 'users', uid)).then((docSnap) => {
-                if (docSnap.exists()) {
-                    setTask(docSnap.data().Task);
-                }
-            });
+			const db = getFirestore();
+			getDoc(doc(db, 'users', uid)).then((docSnap) => {
+				if (docSnap.exists()) {
+					setTask(docSnap.data().Task);
+				}
+			});
 		}
 	});
 

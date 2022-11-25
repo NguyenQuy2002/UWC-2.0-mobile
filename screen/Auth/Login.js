@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 
 import {
@@ -14,7 +14,11 @@ import {
 import Header from '../../components/Header';
 import InputBar from './InputBar';
 import LoginButton from './LoginButton';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+	getAuth,
+	onAuthStateChanged,
+	signInWithEmailAndPassword,
+} from 'firebase/auth';
 
 function Login() {
 	const [email, setEmail] = useState('');
@@ -48,33 +52,33 @@ function Login() {
 					navigation.navigate('MainTab');
 				})
 				.catch((error) => {
-					Alert.alert("The username or password is not correct")
+					Alert.alert('The username or password is not correct');
 				});
 		}
 	};
 
 	return (
 		<View style={styles.body}>
-			<Header name="Login" />
+			<Header name='Login' />
 			<InputBar
-				placeholder="Email"
+				placeholder='Email'
 				value={email}
 				onChangeText={(email) => setEmail(email)}
 			/>
 			<InputBar
-				placeholder="Password"
+				placeholder='Password'
 				value={password}
 				onChangeText={(password) => setPassword(password)}
 				secureTextEntry={true}
 			/>
 			<LoginButton
-				name="Login"
-				type="PRIMARY"
+				name='Login'
+				type='PRIMARY'
 				onPress={onPressLogin}
 			/>
 			<LoginButton
-				name="Forgot Password?"
-				type="SECONDARY"
+				name='Forgot Password?'
+				type='SECONDARY'
 			/>
 			<Text style={styles.text}>
 				Don't have an account?

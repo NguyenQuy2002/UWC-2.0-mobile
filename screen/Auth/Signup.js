@@ -27,13 +27,17 @@ function Signup(props) {
 		} else {
 			createUserWithEmailAndPassword(getAuth(), email, password)
 				.then((userCredential) => {
-					setDoc(doc(getFirestore(), 'users', userCredential.user.uid), {
-						name: name,
-						email: email,
-						phone: phone,
-						password: password,
-					})
-				}).then(() => {
+					setDoc(
+						doc(getFirestore(), 'users', userCredential.user.uid),
+						{
+							name: name,
+							email: email,
+							phone: phone,
+							password: password,
+						}
+					);
+				})
+				.then(() => {
 					navigation.navigate('Login');
 				})
 				.catch((error) => {
