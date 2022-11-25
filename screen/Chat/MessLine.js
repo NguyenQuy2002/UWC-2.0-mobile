@@ -50,7 +50,7 @@ function MessLine({ route }) {
 		navigation.goBack();
 	};
 	const onSendMessage = () => {
-		return <MessageSend mess={message} />;
+		return <MessageSend mess={message}/>
 	};
 	return (
 		<View style={styles.body}>

@@ -5,7 +5,7 @@ import CloseButton from '../../components/CloseButton';
 import Header from '../../components/Header';
 import Info from '../../components/Info';
 
-function SettingAcc(props) {
+function SettingAcc() {
     const navigation = useNavigation()
     const onPressBack = () => {
         navigation.goBack()

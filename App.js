@@ -16,7 +16,6 @@ import HomeScreen from './screen/HomeScreen';
 import TaskDetail from './screen/Task/TaskDetail';
 import TaskList from './screen/Task/TaskList'
 import TaskScreen from './screen/Task/TaskScreen';
-import Test from './Test';
 
 const ListInfoStack = createStackNavigator()
 const AccountStack = createStackNavigator()

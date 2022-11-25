@@ -4,13 +4,16 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import Header from '../../components/Header';
 import InputBar from './InputBar';
 import LoginButton from './LoginButton';
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
-import auth from "../../firebaseConfig"
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
 
 function Signup(props) {
+	const [name, setName] = useState('');
+	const [phone, setPhone] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirm_password, setConfirmPassword] = useState('');
+
 	const navigation = useNavigation();
 	const onPressHandler = () => {
 		let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
@@ -22,31 +25,46 @@ function Signup(props) {
 		} else if (password !== confirm_password) {
 			Alert.alert('The confirm password is not correct');
 		} else {
-            createUserWithEmailAndPassword(getAuth(), email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    navigation.navigate('Login');
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                });
-			
+			createUserWithEmailAndPassword(getAuth(), email, password)
+				.then((userCredential) => {
+					setDoc(doc(getFirestore(), 'users', userCredential.user.uid), {
+						name: name,
+						email: email,
+						phone: phone,
+						password: password,
+					})
+				}).then(() => {
+					navigation.navigate('Login');
+				})
+				.catch((error) => {
+					const errorCode = error.code;
+					const errorMessage = error.message;
+				});
 		}
 	};
 	return (
 		<View style={styles.body}>
-			<Header name="Sign up" />
+			<Header name='Sign up' />
+			<InputBar
+				placeholder='Name'
+				value={name}
+				onChangeText={(name) => setName(name)}
+			/>
+			<InputBar
+				placeholder='Phone'
+				value={phone}
+				onChangeText={(phone) => setPhone(phone)}
+			/>
 			<InputBar
 				value={email}
 				onChangeText={(email) => setEmail(email)}
-				placeholder="Email"
+				placeholder='Email'
 				secureTextEntry={false}
 			/>
 			<InputBar
 				value={password}
 				onChangeText={(password) => setPassword(password)}
-				placeholder="Password"
+				placeholder='Password'
 				secureTextEntry={true}
 			/>
 			<InputBar
@@ -54,18 +72,18 @@ function Signup(props) {
 				onChangeText={(confirm_password) =>
 					setConfirmPassword(confirm_password)
 				}
-				placeholder="Confirm Password"
+				placeholder='Confirm Password'
 				secureTextEntry={true}
 			/>
 			<LoginButton
-				name="Sign up"
-				type="PRIMARY"
+				name='Sign up'
+				type='PRIMARY'
 				onPress={onPressHandler}
 			/>
 			<Text style={styles.text}>
 				Have an account?
 				<Text
-					onPress={onPressHandler}
+					onPress={() => navigation.navigate('Login')}
 					style={styles.signup}>
 					{' '}
 					Log in{' '}

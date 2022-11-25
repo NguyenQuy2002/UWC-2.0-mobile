@@ -3,7 +3,8 @@ import React from 'react';
 import { Text, View, StyleSheet, Pressable, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-function TaskDetail() {
+function TaskDetail({route}) {
+	const {ID, checkin, checkout, MCP} = route.params
 	const navigation = useNavigation();
 	const ASPECT_RATIO = styles.map.width / styles.map.height;
 	const LATITUDE_DELTA = 0.02;
@@ -25,10 +26,10 @@ function TaskDetail() {
 					<Text style={styles.text}>Check out</Text>
 				</View>
 				<View style={styles.value}>
-					<Text style={styles.text}>305</Text>
-					<Text style={styles.text}>1, 2, 3</Text>
-					<Text style={styles.text}>7:30 AM</Text>
-					<Text style={styles.text}></Text>
+					<Text style={styles.text}>{ID}</Text>
+					<Text style={styles.text}>{MCP}</Text>
+					<Text style={styles.text}>{checkin}</Text>
+					<Text style={styles.text}>{checkout}</Text>
 				</View>
 			</View>
 			<View style={styles.imageContainer}>

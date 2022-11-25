@@ -43,19 +43,19 @@ const styles = StyleSheet.create({
     },
     container: {
         flexGrow: 15,
-        flexBasis: 100,
+        width: 250,
         flexDirection: 'column',
         justifyContent: 'center',
         paddingLeft: 16,
     },  
     title: {
         flexGrow: 3,
-        fontSize: 16,
+        fontSize: 12,
         textAlignVertical: 'center'
     },
     value: {
         flexGrow: 3,
-        fontSize: 22,
+        fontSize: 15,
     },
     image: {
         flexGrow: 3,

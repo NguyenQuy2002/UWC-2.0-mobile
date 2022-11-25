@@ -1,5 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
+import { doc, setDoc } from "firebase/firestore";
+import { db } from '../../firebaseConfig';
+
 import {
 	Alert,
 	Pressable,
@@ -45,8 +48,7 @@ function Login() {
 					navigation.navigate('MainTab');
 				})
 				.catch((error) => {
-					const errorCode = error.code;
-					const errorMessage = error.message;
+					Alert.alert("The username is not auth")
 				});
 		}
 	};
