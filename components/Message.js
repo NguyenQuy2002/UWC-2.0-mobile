@@ -2,14 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function Message(props) {
+function Message({user, avatar, messageText, messageTime, seen}) {
     var inactive;
     const navigation = useNavigation();
     const onPressHandler = () => {
-        inactive = (props.seen === "no" ? "Không hoạt động" : "Đang hoạt động");
-        navigation.navigate('MessLine', {user: props.user, inactive: inactive, mess: props.mess})
+        inactive = (seen === "no" ? "Không hoạt động" : "Đang hoạt động");
+        navigation.navigate('MessLine', {user: user, inactive: inactive, mess: messageText})
     }
-    if (props.seen === "yes") {
+    if (seen === "yes") {
         return (
             <Pressable 
                 style={styles.chat}
@@ -19,20 +19,20 @@ function Message(props) {
                 <Image 
                     style={styles.avatar}
                     resizeMode="cover"
-                    source={require("../assets/avatar.png")}
+                    source={avatar}
                 />
                 <Image 
                     style={styles.active}
                     resizeMode="cover"
                     source={require("../assets/active.png")}
                 />
-                <Text style={styles.username}>{props.user}</Text>
-                <Text style={styles.mess}>{props.mess}</Text>
-                <Text style={styles.time}>{props.time}</Text>
+                <Text style={styles.username}>{user}</Text>
+                <Text style={styles.mess}>{messageText.slice(0, 25)}...</Text>
+                <Text style={styles.time}>{messageTime}</Text>
             </Pressable>
         );
     }
-    else if (props.seen === "no") {
+    else if (seen === "no") {
         return (
             <Pressable 
                 style={styles.chat}
@@ -44,9 +44,9 @@ function Message(props) {
                     resizeMode="cover"
                     source={require("../assets/avatar.png")}
                 />
-                <Text style={styles.username1}>{props.user}</Text>
-                <Text style={styles.mess1}>{props.mess}</Text>
-                <Text style={styles.time1}>{props.time}</Text>
+                <Text style={styles.username1}>{user}</Text>
+                <Text style={styles.mess1}>{messageText.slice(0, 25)}...</Text>
+                <Text style={styles.time1}>{messageTime}</Text>
             </Pressable>
         );
     }
@@ -56,14 +56,14 @@ const styles = StyleSheet.create({
     avatar: {
         position: 'absolute',
         height: "80%",
-        width: "13%",
+        width: "15%",
         left: "4%",
         top: "10%",
     },
     avatar1: {
         position: 'absolute',
         height: "80%",
-        width: "13%",
+        width: "15%",
         left: "4%",
         top: "10%",
         opacity: 0.4
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         height: 15,
         position: 'absolute',
         bottom: 5,
-        left: 58,
+        left: 65,
     },  
     username: {
         position: 'absolute',
@@ -91,27 +91,27 @@ const styles = StyleSheet.create({
     mess: {
         position: 'absolute',
         left: "25%",
-        fontSize: 12,
+        fontSize: 14,
         bottom: "10%",
     },
     mess1: {
         position: 'absolute',
         left: "25%",
-        fontSize: 12,
+        fontSize: 14,
         bottom: "10%",
         fontWeight: 'bold',
     },
     time: {
         position: 'absolute',
-        right: "10%",
-        fontSize: 12,
-        bottom: "10%",
+        right: "5%",
+        fontSize: 14,
+        top: "15%",
     },
     time1: {
         position: 'absolute',
-        right: "10%",
-        fontSize: 12,
-        bottom: "10%",
+        right: "3%",
+        fontSize: 14,
+        top: "15%",
         fontWeight: 'bold',
     },
     chat: {

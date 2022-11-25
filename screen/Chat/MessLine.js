@@ -1,63 +1,79 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import {
-	Image,
-	ScrollView,
-	View,
-	StyleSheet,
-	Text,
-	Pressable,
-	StatusBar,
-	TextInput,
-} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-function MessageReceive({ mess }) {
-	return (
-		<View style={styles.message}>
-			<View style={styles.container}>
-				<Image
-					style={styles.avatar}
-					source={require('../../assets/avatar.png')}
-				/>
-				<Image
-					style={styles.active1}
-					source={require('../../assets/active.png')}
-				/>
-			</View>
-			<View style={styles.textContainer}>
-				<Text style={styles.text}>{mess}</Text>
-			</View>
-		</View>
-	);
-}
-
-function MessageSend({ mess }) {
-	return (
-		<View style={styles.message1}>
-			<View style={[styles.textContainer, { backgroundColor: '#37f' }]}>
-				<Text style={styles.text}>{mess}</Text>
-			</View>
-		</View>
-	);
-}
 
 function MessLine({ route }) {
 	const { user, inactive, mess } = route.params;
-	const [message, setMessage] = useState('');
+	const [messages, setMessages] = useState([]);
 	const navigation = useNavigation();
-	const onPressBack = () => {
-		navigation.goBack();
+
+	useEffect(() => {
+		setMessages([
+			{
+				_id: 1,
+				text: 'Hello developer',
+				createdAt: new Date(),
+				user: {
+					_id: 2,
+					name: 'React Native',
+					avatar: 'https://placeimg.com/140/140/any',
+				},
+			},
+		]);
+	}, []);
+
+	const onSend = useCallback((messages = []) => {
+		setMessages((previousMessages) =>
+			GiftedChat.append(previousMessages, messages)
+		);
+	}, []);
+
+	const renderSend = (props) => {
+		return (
+			<Send {...props}>
+				<View>
+					<MaterialCommunityIcons
+						name='send'
+						style={{ marginBottom: 5, marginRight: 5 }}
+						size={32}
+						color='#2e64e5'
+					/>
+				</View>
+			</Send>
+		);
 	};
-	const onSendMessage = () => {
-		return <MessageSend mess={message}/>
+
+	const renderBubble = (props) => {
+		return (
+			<Bubble
+				{...props}
+				wrapperStyle={{
+					right: {
+						backgroundColor: '#2e64e5',
+					},
+				}}
+			/>
+		);
 	};
+
+	const scrollToBottomComponent = () => {
+		return (
+			<MaterialCommunityIcons
+				name='chevron-double-down'
+				size={22}
+				color='#333'
+			/>
+		);
+	};
+
 	return (
-		<View style={styles.body}>
+		<>
 			<View style={styles.header}>
 				<Pressable
 					style={styles.button}
-					onPress={onPressBack}>
+					onPress={() => navigation.goBack()}>
 					<Image
 						style={styles.goback}
 						source={require('../../assets/goback.png')}
@@ -80,79 +96,42 @@ function MessLine({ route }) {
 					<Text style={styles.status}>{inactive}</Text>
 				</View>
 			</View>
-			<ScrollView style={styles.main}>
-				<MessageReceive mess='Hôm nay làm dùm tui ca này được không vậy Quý' />
-				<MessageSend mess='okk, 0967514105 momo 200k dùm nha bạn A' />
-				<MessageReceive mess={mess} />
-			</ScrollView>
-			<View style={styles.footer}>
-				<Image
-					style={styles.add}
-					source={require('../../assets/add.png')}
-				/>
-				<View style={styles.inputbar}>
-					<TextInput
-						style={styles.input}
-						placeholder='Soạn tin...'
-						value={message}
-						onChangeText={(message) => setMessage(message)}
-					/>
-					<Image
-						style={styles.emoticon}
-						source={require('../../assets/emoticon.png')}
-					/>
-				</View>
-				<Pressable onPress={onSendMessage}>
-					<MaterialCommunityIcons
-						style={styles.add}
-						name='send'
-						size={30}
-					/>
-				</Pressable>
-			</View>
-		</View>
+			<GiftedChat
+				messages={messages}
+				onSend={(messages) => onSend(messages)}
+				user={{
+					_id: 1,
+				}}
+				alwaysShowSend
+				renderSend={renderSend}
+				renderBubble={renderBubble}
+				scrollToBottom
+				scrollToBottomComponent={scrollToBottomComponent}
+			/>
+		</>
 	);
 }
 
 const styles = StyleSheet.create({
-	body: {
-		flex: 1,
-		flexDirection: 'column',
-	},
 	header: {
-		flexGrow: 1,
-		flexShrink: 0,
+		width: '100%',
+		height: 72,
 		backgroundColor: 'rgba(11, 204, 148, 0.35)',
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	main: {
-		flexGrow: 50,
-		flexShrink: 0,
-		backgroundColor: '#fff',
-	},
-	footer: {
-		flexGrow: 1,
-		flexShrink: 0,
-		backgroundColor: 'yellow',
-		flexDirection: 'row',
-		alignItems: 'center',
-		backgroundColor: 'rgba(11, 204, 148, 0.35)',
-	},
 	goback: {
 		width: 32,
 		height: 32,
-	},
-	button: {
-		flex: 1,
-		marginLeft: 10,
+		margin: 15,
 	},
 	user: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'flex-end',
 		justifyContent: 'center',
+		marginRight: 10,
 	},
 	avatar: {
 		height: 45,
@@ -166,83 +145,15 @@ const styles = StyleSheet.create({
 	},
 	nameContainer: {
 		flex: 5,
-		marginLeft: 10,
-		justifyContent: 'space-evenly',
-		padding: 5,
+		height: '100%',
+		justifyContent: 'center',
+		margin: 10,
 	},
 	name: {
-		fontSize: 20,
+		fontSize: 18,
 	},
 	status: {
 		fontSize: 12,
-	},
-	add: {
-		width: 29,
-		height: 28,
-		margin: '3%',
-	},
-	inputbar: {
-		flex: 1,
-		flexDirection: 'row',
-		paddingTop: 10,
-		paddingRight: 10,
-		paddingBottom: 10,
-		paddingLeft: 10,
-		backgroundColor: '#fff',
-		borderWidth: 1,
-		borderColor: 'rgba(0, 0, 0, 0.4)',
-		borderRadius: 30,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	emoticon: {
-		height: 24,
-		width: 24,
-	},
-	input: {
-		flex: 1,
-	},
-	message: {
-		flexDirection: 'row',
-		width: 240,
-		minHeight: 50,
-		marginVertical: 6,
-		marginHorizontal: 12,
-		alignItems: 'center',
-	},
-	message1: {
-		alignSelf: 'flex-end',
-		flexDirection: 'row',
-		width: 240,
-		minHeight: 50,
-		marginVertical: 6,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	container: {
-		maxHeight: '100%',
-		justifyContent: 'flex-start',
-		flexDirection: 'row',
-		alignItems: 'flex-end',
-	},
-	active1: {
-		height: 15,
-		width: 15,
-		position: 'absolute',
-		left: 35,
-	},
-	textContainer: {
-		maxHeight: '100%',
-		maxWidth: 250,
-		backgroundColor: 'rgba(217, 217, 217, 0.4)',
-		borderRadius: 20,
-		margin: 10,
-		padding: 10,
-		alignItems: 'flex-start',
-		justifyContent: 'center',
-	},
-	text: {
-		fontSize: 16,
 	},
 });
 

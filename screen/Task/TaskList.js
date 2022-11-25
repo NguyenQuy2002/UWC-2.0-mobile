@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
@@ -10,24 +10,9 @@ import {
 	SectionList,
 	StyleSheet,
 	Text,
-	View
+	View,
 } from 'react-native';
 const Stack = createStackNavigator();
-
-const DATA = [
-	{
-		id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-		title: 'Nhiệm vụ 1',
-	},
-	{
-		id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-		title: 'Nhiệm vụ 2',
-	},
-	{
-		id: '58694a0f-3da1-471f-bd96-145571e29d72',
-		title: 'Nhiệm vụ 3',
-	},
-];
 
 const Item = ({ title }) => {
 	const navigation = useNavigation();
@@ -73,35 +58,36 @@ const SectionData = ({ title }) => {
 	);
 };
 
-class User {
-	constructor(Task) {
-		this.Task = Task;
-	}
-}
-const UserConverter = {
-	toFirestore: (user) => {
-		return {
-			Task: user.Task,
-		};
-	},
-	fromFirestore: (snapshot, options) => {
-		const data = snapshot.data(options);
-		return new User(data.Task);
-	},
-};
-
 export function MonthlyTask() {
 	const [task, setTask] = useState([]);
-	const db = getFirestore();
-	const uid = getAuth().currentUser.uid;
-	getDoc(doc(db, 'users', uid)).then((docSnap) => {
-		if (docSnap.exists()) {
-			setTask(docSnap.data().Task);
+
+	var taskList = [];
+
+	let today = new Date();
+
+	const auth = getAuth();
+	onAuthStateChanged(auth, (user) => {
+		if (user) {
+			const uid = user.uid;
+			const db = getFirestore();
+			getDoc(doc(db, 'users', uid)).then((docSnap) => {
+				if (docSnap.exists()) {
+					setTask(docSnap.data().Task);
+				}
+			});
 		}
 	});
+
+	for (let obj in task) {
+		var date = new Date(task[obj].title);
+		if (date.getMonth() === today.getMonth()) {
+			taskList.push(task[obj]);
+		}
+	}
+
 	return (
 		<SectionList
-			sections={task}
+			sections={taskList}
 			keyExtractor={(item, index) => item + index}
 			renderItem={({ item }) => <Item title={item} />}
 			renderSectionHeader={({ section: { title } }) => (
@@ -112,9 +98,36 @@ export function MonthlyTask() {
 }
 
 export function WeeklyTask() {
+	const [task, setTask] = useState([]);
+	const auth = getAuth();
+	onAuthStateChanged(auth, (user) => {
+		if (user) {
+			const uid = user.uid;
+			const db = getFirestore();
+			getDoc(doc(db, 'users', uid)).then((docSnap) => {
+				if (docSnap.exists()) {
+					setTask(docSnap.data().Task);
+				}
+			});
+		}
+	});
+	var taskList = [];
+
+	let today = new Date();
+	var first = today.getDate() - today.getDay();
+	var last = first + 6;
+	var firstDay = new Date(today.setDate(first)).toISOString().slice(0, 10);
+	var lastDay = new Date(today.setDate(last)).toISOString().slice(0, 10);
+
+	for (let obj in task) {
+		var date = task[obj].title;
+		if (date <= lastDay && date >= firstDay) {
+			taskList.push(task[obj]);
+		}
+	}
 	return (
 		<SectionList
-			sections={DATA2}
+			sections={taskList}
 			keyExtractor={(item, index) => item + index}
 			renderItem={({ item }) => <Item title={item} />}
 			renderSectionHeader={({ section: { title } }) => (
@@ -125,13 +138,38 @@ export function WeeklyTask() {
 }
 
 export function DailyTask() {
+	const [task, setTask] = useState([]);
+	var taskList;
+
+	let today = new Date().toISOString().slice(0, 10);
+
+	const auth = getAuth();
+	onAuthStateChanged(auth, (user) => {
+		if (user) {
+			const uid = user.uid;
+			const db = getFirestore();
+			getDoc(doc(db, 'users', uid)).then((docSnap) => {
+				if (docSnap.exists()) {
+					setTask(docSnap.data().Task);
+				}
+			});
+		}
+	});
+
+	for (let obj in task) {
+		var date = task[obj].title;
+		if (date === today) {
+			taskList = task[obj].data;
+		}
+	}
+
 	return (
 		<View style={styles.body}>
 			<FlatList
 				style={{ width: '100%' }}
-				data={DATA}
-				renderItem={({ item }) => <Item title={item.title} />}
-				keyExtractor={(item) => item.id}
+				data={taskList}
+				renderItem={({ item }) => <Item title={item} />}
+				keyExtractor={(item) => item.ID}
 			/>
 		</View>
 	);

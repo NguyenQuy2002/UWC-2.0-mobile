@@ -48,7 +48,7 @@ function Login() {
 					navigation.navigate('MainTab');
 				})
 				.catch((error) => {
-					Alert.alert("The username is not auth")
+					Alert.alert("The username or password is not correct")
 				});
 		}
 	};
