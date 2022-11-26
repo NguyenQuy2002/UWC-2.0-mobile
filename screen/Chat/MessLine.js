@@ -1,33 +1,57 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { getAuth } from 'firebase/auth';
+import {
+	addDoc,
+	collection,
+	getFirestore,
+	query,
+	orderBy,
+	onSnapshot,
+} from 'firebase/firestore';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function MessLine({ route }) {
-	const { user, inactive, mess } = route.params;
+	const { user, inactive } = route.params;
 	const [messages, setMessages] = useState([]);
 	const navigation = useNavigation();
 
-	useEffect(() => {
-		setMessages([
-			{
-				_id: 1,
-				text: 'Hello developer',
-				createdAt: new Date(),
-				user: {
-					_id: 2,
-					name: 'Hello',
-					avatar: 'https://placeimg.com/140/140/any',
-				},
-			},
-		]);
+	useLayoutEffect(() => {
+		const collectionRef = collection(getFirestore(), 'messages');
+		const q = query(collectionRef, orderBy('createdAt', 'desc'));
+
+		const unsubscribe = onSnapshot(q, (snapshot) => {
+			console.log('snapshot');
+			setMessages(
+				snapshot.docs.map((doc) => ({
+					_id: doc.id,
+					text: doc.data().text,
+					createdAt: doc.data().createdAt.toDate(),
+					user: doc.data().user,
+				}))
+			);
+		});
+		return unsubscribe;
 	}, []);
 
 	const onSend = useCallback((messages = []) => {
 		setMessages((previousMessages) =>
 			GiftedChat.append(previousMessages, messages)
 		);
+		const { _id, createdAt, text, user } = messages[0];
+		addDoc(collection(getFirestore(), 'messages'), {
+			_id,
+			createdAt,
+			text,
+			user,
+		});
 	}, []);
 
 	const renderSend = (props) => {
@@ -100,8 +124,10 @@ function MessLine({ route }) {
 				messages={messages}
 				onSend={(messages) => onSend(messages)}
 				user={{
-					_id: 1,
+					_id: getAuth().currentUser.email,
+					avatar: 'https://placeimg.com/140/140/any',
 				}}
+				showAvatarForEveryMessage={true}
 				alwaysShowSend
 				renderSend={renderSend}
 				renderBubble={renderBubble}

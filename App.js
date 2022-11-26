@@ -1,5 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-navigation/native';
+import {
+	getFocusedRouteNameFromRoute,
+	NavigationContainer,
+} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
@@ -71,12 +74,12 @@ function ChatRoute() {
 }
 
 function MainTab() {
-    const getTabBarStyle = (route) => {  
-		const routeName = getFocusedRouteNameFromRoute(route) ?? "";
-		let display = (routeName === 'MessLine') ? 'none': 'flex';
-		return {display}
-	}
-	
+	const getTabBarStyle = (route) => {
+		const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+		let display = routeName === 'MessLine' ? 'none' : 'flex';
+		return { display };
+	};
+
 	return (
 		<Tab.Navigator
 			screenOptions={{
