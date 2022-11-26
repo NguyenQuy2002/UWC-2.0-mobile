@@ -1,11 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import Header from '../../components/Header';
 import InputBar from './InputBar';
 import LoginButton from './LoginButton';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { doc, setDoc, getFirestore } from 'firebase/firestore';
 
 function Signup(props) {
 	const [name, setName] = useState('');

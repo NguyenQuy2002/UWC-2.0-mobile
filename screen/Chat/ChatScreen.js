@@ -1,103 +1,85 @@
-import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, getDocs, collection, query } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Image, Pressable, StyleSheet, Text } from 'react-native';
 import Header from '../../components/Header';
-import Message from '../../components/Message';
 
-const Data = [
-	{
-		id: 1,
-		userName: 'John Doe',
-		userImg: require('../../assets/avatar.png'),
-		messageTime: '4 mins ago',
-		messageText: 'Hey there, this is a message from MCP.',
-	},
-	{
-		id: 2,
-		userName: 'Jenny Doe',
-		userImg: require('../../assets/avatar.png'),
-		messageTime: '4 mins ago',
-		messageText: 'Hey there, this is a message from MCP.',
-	},
-	{
-		id: 3,
-		userName: 'Lady Doe',
-		userImg: require('../../assets/avatar.png'),
-		messageTime: '4 mins ago',
-		messageText: 'Hey there, this is a message from MCP.',
-	},
-	{
-		id: 4,
-		userName: 'Moll Doe',
-		userImg: require('../../assets/avatar.png'),
-		messageTime: '4 mins ago',
-		messageText: 'Hey there, this is a message from MCP.',
-	},
-];
-
-export default function ChatScreen(props) {
+function ChatScreen(props) {
+	const [contact, setContact] = useState([]);
+	const navigation = useNavigation();
+	const auth = getAuth();
+	const db = getFirestore();
+	useEffect(() => {
+		onAuthStateChanged(auth, (user) => {
+			if (user) {
+				const uid = user.uid;
+				getDocs(collection(db, 'users')).then((querySnapshot) => {
+					const tempContact = [];
+					querySnapshot.forEach((doc) => {
+						if (doc.id != uid) {
+							tempContact.push({
+								id: doc.id,
+								name: doc.data().name,
+								email: doc.data().email,
+							});
+						}
+					});
+					setContact(tempContact);
+				});
+			}
+		});
+	}, []);
 	return (
-		<View style={styles.body}>
-			<Header name='Chat' />
-			<View style={styles.container}>
-				<MaterialCommunityIcons
-					style={styles.search}
-					name='magnify'
-					size={17}
-				/>
-				<TextInput
-					style={styles.input}
-					placeholder='Search'
-				/>
-			</View>
-
+		<>
+			<Header name='Trò chuyện' />
 			<FlatList
-				style={styles.main}
-				data={Data}
-				keyExtractor={(item) => item.id}
-				renderItem={({ item }) => (
-					<Message
-						user={item.userName}
-						avatar={item.userImg}
-						messageText={item.messageText}
-						messageTime={item.messageTime}
-						seen='yes'
-					/>
-				)}
+				style={styles.list}
+				data={contact}
+				keyExtractor={(item) => item.email}
+				renderItem={({ item }) => {
+					return (
+						<Pressable
+							style={styles.contact}
+							android_ripple={{ color: 'gray' }}
+							onPress={() =>
+								navigation.navigate('MessLine', {
+									item,
+								})
+							}>
+							<Image
+								style={styles.avatar}
+								source={require('../../assets/avatar.png')}
+							/>
+							<Text style={{ fontSize: 20 }}>{item.name}</Text>
+						</Pressable>
+					);
+				}}
 			/>
-		</View>
+		</>
 	);
 }
 
 const styles = StyleSheet.create({
-	body: {
-		flex: 1,
-		flexDirection: 'column',
-		justifyContent: 'center',
-		alignItems: 'stretch',
-	},
-	container: {
-		width: '90%',
-		flexDirection: 'row',
-		alignSelf: 'center',
-		alignItems: 'center',
-		borderWidth: 1,
-		backgroundColor: 'rgba(217, 217, 217, 0.3)',
-		borderRadius: 30,
-		marginTop: 20,
-		marginBottom: 15,
-	},
-	main: {
-		flexGrow: 50,
-		flexShrink: 0,
-	},
-	input: {
+	list: {
 		width: '100%',
-		height: 30,
+		height: 600,
+		marginTop: 30,
 	},
-	search: {
-		marginLeft: 10,
-		marginRight: 10,
+	contact: {
+		width: '100%',
+		height: 100,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'flex-start',
+		borderTopWidth: 1,
+		backgroundColor: '#d9d9d9',
+	},
+	avatar: {
+		width: 48,
+		height: 48,
+		marginHorizontal: 15,
 	},
 });
+
+export default ChatScreen;

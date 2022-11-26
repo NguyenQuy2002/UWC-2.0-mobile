@@ -125,7 +125,6 @@ function MainTab() {
 						/>
 					),
 					tabBarStyle: getTabBarStyle(route),
-					tabBarBadge: 2,
 				})}
 			/>
 			<Tab.Screen

@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 		color: '#055c32',
 		textAlign: 'center',
 		fontWeight: 'bold',
-		fontSize: 32,
+		fontSize: 28,
 	},
 });
 export default Header;

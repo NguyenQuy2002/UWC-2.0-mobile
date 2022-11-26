@@ -43,7 +43,7 @@ export default function AccountInfo() {
 				const uid = user.uid;
 				const db = getFirestore();
 				onSnapshot(
-					doc(db, 'users').withConverter(UserConverter),
+					doc(db, 'users', uid).withConverter(UserConverter),
 					(doc) => {
 						if (doc.exists()) {
 							const userInfo = doc.data();

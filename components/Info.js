@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
 	},
 	value: {
 		flexGrow: 3,
-		fontSize: 15,
+		fontSize: 18,
 	},
 	image: {
 		flexGrow: 3,

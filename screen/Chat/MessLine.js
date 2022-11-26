@@ -4,9 +4,12 @@ import {
 	addDoc,
 	collection,
 	getFirestore,
-	query,
-	orderBy,
 	onSnapshot,
+	orderBy,
+	query,
+	doc,
+	setDoc,
+	getDoc,
 } from 'firebase/firestore';
 import React, {
 	useCallback,
@@ -19,16 +22,22 @@ import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function MessLine({ route }) {
-	const { user, inactive } = route.params;
+	const { item } = route.params;
+	const [userName, setUserName] = useState('');
 	const [messages, setMessages] = useState([]);
+	const userB = item;
 	const navigation = useNavigation();
+	const currentUser = getAuth().currentUser;
+	const uid = currentUser.uid;
+	const db = getFirestore();
+	const roomID = item.id > uid ? item.id + '-' + uid : uid + '-' + item.id;
+	const roomRef = doc(db, 'rooms', roomID);
+	const roomMessageRef = collection(db, 'rooms', roomID, 'messages');
 
-	useLayoutEffect(() => {
-		const collectionRef = collection(getFirestore(), 'messages');
-		const q = query(collectionRef, orderBy('createdAt', 'desc'));
+	useEffect(() => {
+		const q = query(roomMessageRef, orderBy('createdAt', 'desc'));
 
 		const unsubscribe = onSnapshot(q, (snapshot) => {
-			console.log('snapshot');
 			setMessages(
 				snapshot.docs.map((doc) => ({
 					_id: doc.id,
@@ -38,6 +47,31 @@ function MessLine({ route }) {
 				}))
 			);
 		});
+		getDoc(doc(db, 'users', uid)).then((doc) => {
+			if (doc.id === uid) {
+				setUserName(doc.data().name);
+			}
+		});
+		async () => {
+			const currUserData = {
+				displayName: userName,
+				email: currentUser.email,
+			};
+			const userBData = {
+				displayName: userB.name,
+				email: userB.email,
+			};
+			const roomData = {
+				participants: [currUserData, userBData],
+				participantsArray: [currentUser.email, userB.email],
+			};
+			try {
+				await setDoc(roomRef, roomData);
+			} catch (error) {
+				console.log(error);
+			}
+			console.log(roomData);
+		};
 		return unsubscribe;
 	}, []);
 
@@ -46,7 +80,7 @@ function MessLine({ route }) {
 			GiftedChat.append(previousMessages, messages)
 		);
 		const { _id, createdAt, text, user } = messages[0];
-		addDoc(collection(getFirestore(), 'messages'), {
+		addDoc(roomMessageRef, {
 			_id,
 			createdAt,
 			text,
@@ -95,36 +129,25 @@ function MessLine({ route }) {
 	return (
 		<>
 			<View style={styles.header}>
-				<Pressable
-					style={styles.button}
-					onPress={() => navigation.goBack()}>
+				<Pressable onPress={() => navigation.goBack()}>
 					<Image
-						style={styles.goback}
+						style={styles.back}
 						source={require('../../assets/goback.png')}
 					/>
 				</Pressable>
-				<View style={styles.user}>
-					<Image
-						style={styles.avatar}
-						source={require('../../assets/avatar.png')}
-					/>
-					{inactive === 'Đang hoạt động' ? (
-						<Image
-							style={styles.active}
-							source={require('../../assets/active.png')}
-						/>
-					) : null}
-				</View>
-				<View style={styles.nameContainer}>
-					<Text style={styles.name}>{user}</Text>
-					<Text style={styles.status}>{inactive}</Text>
-				</View>
+				<Image
+					style={styles.avatar}
+					source={require('../../assets/avatar.png')}
+				/>
+				<Text style={{ fontSize: 20, marginLeft: 5 }}>
+					{userB.name}
+				</Text>
 			</View>
 			<GiftedChat
 				messages={messages}
 				onSend={(messages) => onSend(messages)}
 				user={{
-					_id: getAuth().currentUser.email,
+					_id: currentUser.email,
 					avatar: 'https://placeimg.com/140/140/any',
 				}}
 				showAvatarForEveryMessage={true}
@@ -140,46 +163,21 @@ function MessLine({ route }) {
 
 const styles = StyleSheet.create({
 	header: {
-		width: '100%',
-		height: 72,
 		backgroundColor: 'rgba(11, 204, 148, 0.35)',
-		flexDirection: 'row',
+		height: 69,
+		width: '100%',
 		alignItems: 'center',
-		justifyContent: 'center',
+		flexDirection: 'row',
 	},
-	goback: {
+	back: {
 		width: 32,
 		height: 32,
-		margin: 15,
-	},
-	user: {
-		flex: 1,
-		flexDirection: 'row',
-		alignItems: 'flex-end',
-		justifyContent: 'center',
-		marginRight: 10,
+		marginHorizontal: 15,
 	},
 	avatar: {
-		height: 45,
-		width: 45,
-	},
-	active: {
-		position: 'absolute',
-		right: 0,
-		height: 15,
-		width: 15,
-	},
-	nameContainer: {
-		flex: 5,
-		height: '100%',
-		justifyContent: 'center',
-		margin: 10,
-	},
-	name: {
-		fontSize: 18,
-	},
-	status: {
-		fontSize: 12,
+		width: 48,
+		height: 48,
+		marginHorizontal: 10,
 	},
 });
 
