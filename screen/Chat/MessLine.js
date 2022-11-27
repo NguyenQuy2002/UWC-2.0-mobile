@@ -52,40 +52,47 @@ function MessLine({ route }) {
 				setUserName(doc.data().name);
 			}
 		});
-		async () => {
-			const currUserData = {
-				displayName: userName,
-				email: currentUser.email,
-			};
-			const userBData = {
-				displayName: userB.name,
-				email: userB.email,
-			};
-			const roomData = {
-				participants: [currUserData, userBData],
-				participantsArray: [currentUser.email, userB.email],
-			};
-			try {
-				await setDoc(roomRef, roomData);
-			} catch (error) {
-				console.log(error);
-			}
-			console.log(roomData);
-		};
+
 		return unsubscribe;
 	}, []);
 
+	const currUserData = {
+		displayName: userName,
+		email: currentUser.email,
+	};
+	const userBData = {
+		displayName: userB.name,
+		email: userB.email,
+	};
+	const roomData = {
+		participants: [currUserData, userBData],
+		participantsArray: [currentUser.email, userB.email],
+	};
+	setDoc(roomRef, roomData, {merge: true});
 	const onSend = useCallback((messages = []) => {
 		setMessages((previousMessages) =>
 			GiftedChat.append(previousMessages, messages)
 		);
-		const { _id, createdAt, text, user } = messages[0];
-		addDoc(roomMessageRef, {
-			_id,
-			createdAt,
-			text,
-			user,
-		});
+		if (messages) {
+			const { _id, createdAt, text, user } = messages[0];
+			addDoc(roomMessageRef, {
+				_id,
+				createdAt,
+				text,
+				user,
+			});
+			setDoc(
+				roomRef,
+				{
+					lastMessage: {
+						_id,
+						createdAt,
+						text,
+					},
+				},
+				{ merge: true }
+			);
+		}
 	}, []);
 
 	const renderSend = (props) => {
